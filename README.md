@@ -17,4 +17,5 @@ Explanation
 4.	Data Visualization:
 
 •	The ‘index.html’ file creates an interactive data visualization using D3.js. It sets up an SVG canvas and updates it with real-time data fetched from a Flask server.
+
 •	The ‘server.py’ script runs a Flask server that simulates real-time data responses. It generates and returns random data points with timestamps to the client-side D3.js script for visualization.
