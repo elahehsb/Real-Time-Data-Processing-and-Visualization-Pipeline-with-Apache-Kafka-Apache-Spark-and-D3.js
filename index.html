@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time Data Visualization</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .line { fill: none; stroke: steelblue; stroke-width: 2px; }
+    </style>
+</head>
+<body>
+    <h1>Real-Time Data Visualization</h1>
+    <svg width="800" height="400"></svg>
+
+    <script>
+        const svg = d3.select("svg"),
+              margin = { top: 20, right: 20, bottom: 30, left: 50 },
+              width = +svg.attr("width") - margin.left - margin.right,
+              height = +svg.attr("height") - margin.top - margin.bottom,
+              g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleTime().range([0, width]);
+        const y = d3.scaleLinear().range([height, 0]);
+
+        const line = d3.line()
+            .x(d => x(d.timestamp))
+            .y(d => y(d.value));
+
+        const parseTime = d3.timeParse("%Q");
+
+        const data = [];
+
+        const xAxis = g.append("g")
+            .attr("class", "axis axis--x")
+            .attr("transform", `translate(0,${height})`);
+
+        const yAxis = g.append("g")
+            .attr("class", "axis axis--y");
+
+        const path = g.append("path")
+            .attr("class", "line");
+
+        function update(data) {
+            x.domain(d3.extent(data, d => d.timestamp));
+            y.domain(d3.extent(data, d => d.value));
+
+            xAxis.call(d3.axisBottom(x));
+            yAxis.call(d3.axisLeft(y));
+
+            path.datum(data)
+                .attr("d", line);
+        }
+
+        function fetchData() {
+            d3.json("/data").then(newData => {
+                newData.timestamp = parseTime(newData.timestamp);
+                data.push(newData);
+                update(data);
+            });
+        }
+
+        d3.interval(fetchData, 1000);
+    </script>
+</body>
+</html>
